@@ -6,10 +6,10 @@ import (
 )
 
 type HttpRouter struct {
-    router mux.Router
+    router *mux.Router
 }
 
-func NewHttpRouter(router mux.Router) *HttpRouter {
+func NewHttpRouter(router *mux.Router) *HttpRouter {
     return &HttpRouter{router}
 }
 
