@@ -1,42 +1,49 @@
 package web
 
 import (
-    "fmt"
-    "net/http"
+	"io/ioutil"
+	"net/http"
 
-    "github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 )
 
-type HttpRouter struct {
-    router *mux.Router
-    pathPrefix string
+// HTTPRouter is a structure used for all incoming and outgoing HTTP
+// requests/calls in the services
+type HTTPRouter struct {
+	router     *mux.Router
+	pathPrefix string
 }
 
-func NewHttpRouter(router *mux.Router, pathPrefix string) *HttpRouter {
-    return &HttpRouter{router, pathPrefix}
+// NewHTTPRouter constructs a new HTTPRouter structure
+func NewHTTPRouter(router *mux.Router, pathPrefix string) *HTTPRouter {
+	return &HTTPRouter{router, pathPrefix}
 }
 
-func (r *HttpRouter) HandleRoute(method int, path string,
-                                handler func(http.ResponseWriter,
-                                             *http.Request)) {
-    var methodStr string
-    switch method {
-    case GET:
-        methodStr = "GET"
-    case POST:
-        methodStr = "POST"
-    case PUT:
-        methodStr = "PUT"
-    case DELETE:
-        methodStr = "DELETE"
-    }
-    r.router.HandleFunc(path, handler).Methods(methodStr)
+// HandleRoute adds a new route to the HTTPRouter
+func (r *HTTPRouter) HandleRoute(methods []string, path string,
+	handler func(w http.ResponseWriter,
+		queryParams map[string][]string,
+		body string)) {
+
+	handlerWrapper := func(w http.ResponseWriter, r *http.Request) {
+		var b []byte
+		var err error
+		if r.Body != nil {
+			b, err = ioutil.ReadAll(r.Body)
+		}
+		queryParams := r.URL.Query()
+		body := string(b)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		handler(w, queryParams, body)
+	}
+
+	r.router.HandleFunc(path, handlerWrapper).Methods(methods...)
 }
 
-func (r *HttpRouter) StartListening() {
-    http.Handle("/", http.StripPrefix(r.pathPrefix, r.router))
-}
-
-func TestHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintf(w, "Testing!!")
+// StartListening starts redirecting all requests through the HTTPRouter
+func (r *HTTPRouter) StartListening() {
+	http.Handle("/", http.StripPrefix(r.pathPrefix, r.router))
 }

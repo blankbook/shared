@@ -4,6 +4,5 @@ package models
 
 // Model is an interface for the models of the data from incoming requests
 type Model interface {
-    // validate 
-    Validate() (bool, []string)
+    Validate() bool
 }
