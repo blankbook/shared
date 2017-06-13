@@ -10,11 +10,11 @@ import (
 const MIN_TITLE_LENGTH = 5
 
 type Post struct {
-    Title string
-    Content string
-    ContentType string
-    Group string
-    Time int64
+    Title string // limit - 300 characters
+    Content string // limit - 2^31 characters
+    ContentType string // limit - 100 characters
+    GroupName string // limit - 100 characters
+    Time int64 // format: 1900-04-11 00:00:00
 }
 
 func ParsePost(s string) (Post, error) {
