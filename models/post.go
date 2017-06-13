@@ -39,7 +39,7 @@ func (p *Post) Validate() error {
     if p.ContentType == "" {
         errorMessage += "field 'ContentType' required, "
     }
-    if p.Group == "" {
+    if p.GroupName == "" {
         errorMessage += "field 'Group' required, "
     }
 
