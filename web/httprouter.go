@@ -1,10 +1,11 @@
 package web
 
 import (
-	"io/ioutil"
-	"net/http"
+    "io/ioutil"
+    "net/http"
+    "database/sql"
 
-	"github.com/gorilla/mux"
+    "github.com/gorilla/mux"
 )
 
 // HTTPRouter is a structure used for all incoming and outgoing HTTP
@@ -21,10 +22,10 @@ func NewHTTPRouter(router *mux.Router, pathPrefix string) *HTTPRouter {
 
 // HandleRoute adds a new route to the HTTPRouter
 func (r *HTTPRouter) HandleRoute(methods []string, path string,
-	handler func(w http.ResponseWriter,
-		queryParams map[string][]string,
-		body string)) {
-
+                                 handler func(w http.ResponseWriter,
+                                              queryParams map[string][]string,
+                                              body string, db *sql.DB),
+                                 db *sql.DB) {
 	handlerWrapper := func(w http.ResponseWriter, r *http.Request) {
 		var b []byte
 		var err error
@@ -37,7 +38,7 @@ func (r *HTTPRouter) HandleRoute(methods []string, path string,
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		handler(w, queryParams, body)
+		handler(w, queryParams, body, db)
 	}
 
 	r.router.HandleFunc(path, handlerWrapper).Methods(methods...)

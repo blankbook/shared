@@ -1,7 +1,8 @@
 package web
 
 import (
-	"net/http"
+    "net/http"
+    "database/sql"
 )
 
 const (
@@ -14,8 +15,9 @@ const (
 // Router is an interface used for all incoming and outgoing network requests
 // in the services
 type Router interface {
-	HandleRoute(methods []string, path string,
-		handler func(w http.ResponseWriter,
-			queryParams map[string][]string,
-			body string))
+    HandleRoute(methods []string, path string,
+                handler func(w http.ResponseWriter,
+                             queryParams map[string][]string,
+                             body string, db *sql.DB),
+                db *sql.DB)
 }
