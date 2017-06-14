@@ -1,11 +1,14 @@
 package models
 
 import (
+    "database/sql"
     "encoding/json"
     "errors"
     "time"
     "fmt"
 )
+
+const PostSQLColumns = "Title, Content, ContentType, GroupName, Time"
 
 const minTitleLength = 5
 const maxTitleLength = 300
@@ -28,6 +31,38 @@ func ParsePost(s string) (Post, error) {
         post.Time = time.Now().Unix()
     }
     return post, err
+}
+
+func GetPostFromRow(r *sql.Row) (Post, error) {
+    var p Post
+    err := r.Scan(
+        &p.Title,
+        &p.Content,
+        &p.ContentType,
+        &p.GroupName,
+        &p.Time)
+    return p, err
+}
+
+
+func GetPostsFromRows(r *sql.Rows) ([]Post, error) {
+    defer r.Close()
+    posts := make([]Post, 0, 10)
+    var err error
+    for r.Next() {
+        var p Post
+        err = r.Scan(
+            &p.Title,
+            &p.Content,
+            &p.ContentType,
+            &p.GroupName,
+            &p.Time)
+        if err != nil {
+            break
+        }
+        posts = append(posts, p)
+    }
+    return posts, err
 }
 
 func (p *Post) Validate() error {
