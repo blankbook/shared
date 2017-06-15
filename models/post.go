@@ -1,6 +1,7 @@
 package models
 
 import (
+    "reflect"
     "database/sql"
     "encoding/json"
     "errors"
@@ -8,20 +9,34 @@ import (
     "fmt"
 )
 
-const PostSQLColumns = "Title, Content, ContentType, GroupName, Time"
+const PostSQLColumns = "ID, Title, EditTitle, Content, EditContent, ContentType, GroupName, Time, Color"
 
-const minTitleLength = 5
-const maxTitleLength = 300
-const maxContentLength = 2147483647
-const maxContentTypeLength = 100
-const maxGroupNameLength = 100
+var postColMinLen = map[string]int {
+    "Title" : 5,
+    "EditTitle": 5,
+    "Color": 6,
+}
+
+var postColMaxLen = map[string]int {
+    "Title" : 300,
+    "EditTitle": 300,
+    "Content": 100000000,
+    "EditContent": 100000000,
+    "ContentType":100,
+    "GroupName":100,
+    "Color": 6,
+}
 
 type Post struct {
+    ID int64
     Title string
+    EditTitle string
     Content string
+    EditContent string
     ContentType string
     GroupName string
     Time int64
+    Color string
 }
 
 func ParsePost(s string) (Post, error) {
@@ -36,11 +51,15 @@ func ParsePost(s string) (Post, error) {
 func GetPostFromRow(r *sql.Row) (Post, error) {
     var p Post
     err := r.Scan(
+        &p.ID,
         &p.Title,
+        &p.EditTitle,
         &p.Content,
+        &p.EditContent,
         &p.ContentType,
         &p.GroupName,
-        &p.Time)
+        &p.Time,
+        &p.Color)
     return p, err
 }
 
@@ -52,11 +71,15 @@ func GetPostsFromRows(r *sql.Rows) ([]Post, error) {
     for r.Next() {
         var p Post
         err = r.Scan(
+            &p.ID,
             &p.Title,
+            &p.EditTitle,
             &p.Content,
+            &p.EditContent,
             &p.ContentType,
             &p.GroupName,
-            &p.Time)
+            &p.Time,
+            &p.Color)
         if err != nil {
             break
         }
@@ -67,23 +90,25 @@ func GetPostsFromRows(r *sql.Rows) ([]Post, error) {
 
 func (p *Post) Validate() error {
     var errorMessage string
-    const errMsgTemplate = "field %s required with length from %d to %d"
+    const errMsgMin = "field %s required with min length %d, "
+    const errMsgMax = "field %s required with max length %d, "
 
-    if len(p.Title) < minTitleLength || len(p.Title) > maxTitleLength {
-        errorMessage += fmt.Sprintf(errMsgTemplate, "Title", minTitleLength,
-                                    maxTitleLength)
-    }
-    if p.Content == "" || len(p.Content) > maxContentLength {
-        errorMessage += fmt.Sprintf(errMsgTemplate, "Content", 1,
-                                    maxContentLength)
-    }
-    if p.ContentType == "" || len(p.ContentType) > maxContentTypeLength {
-        errorMessage += fmt.Sprintf(errMsgTemplate, "ContentType", 1,
-                                    maxContentTypeLength)
-    }
-    if p.GroupName == "" || len(p.GroupName) > maxGroupNameLength {
-        errorMessage += fmt.Sprintf(errMsgTemplate, "GroupName", 1,
-                                    maxGroupNameLength)
+    pRefl := reflect.ValueOf(p).Elem()
+    pType := pRefl.Type()
+
+    for i := 0; i < pRefl.NumField(); i++ {
+        key := pType.Field(i).Name
+        val := pRefl.Field(i).Interface()
+        if targ, ok := postColMinLen[key]; ok {
+            if val != targ {
+                errorMessage += fmt.Sprintf(errMsgMin, key, targ)
+            }
+        }
+        if targ, ok := postColMaxLen[key]; ok {
+            if val != targ {
+                errorMessage += fmt.Sprintf(errMsgMax, key, targ)
+            }
+        }
     }
 
     var err error
