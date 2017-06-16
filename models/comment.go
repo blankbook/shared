@@ -8,16 +8,25 @@ import (
 
 const CommentSQLColumns = "ID, ParentPost, ParentComment, Content, EditContent, Time, Color"
 
-var commentColMinLen = map[string]int {
+var cColMin = map[string]int64 {
     "Content" : 5,
     "EditContent" : 5,
     "Color" : 6,
 }
 
-var commentColMaxLen = map[string]int {
+var cColMax = map[string]int64 {
     "Content" : 100000000,
     "EditContent" : 100000000,
     "Color" : 6,
+}
+
+var cRequiredCols = map[string]bool {
+    "ParentPost": true,
+    "ParentComment": false,
+    "Content": true,
+    "EditContent": false,
+    "Time": true,
+    "Color": true,
 }
 
 type Comment struct {
@@ -76,5 +85,5 @@ func GetCommentsFromRows(r *sql.Rows) ([]Comment, error) {
 }
 
 func (c *Comment) Validate() error {
-    return ValidateRanges(c, commentColMinLen, commentColMaxLen)
+    return ValidateRanges(c, cRequiredCols, cColMin, cColMax)
 }

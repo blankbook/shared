@@ -8,13 +8,13 @@ import (
 
 const PostSQLColumns = "ID, Title, EditTitle, Content, EditContent, ContentType, GroupName, Time, Color"
 
-var postColMinLen = map[string]int {
+var pColMin = map[string]int64 {
     "Title" : 5,
     "EditTitle": 5,
     "Color": 6,
 }
 
-var postColMaxLen = map[string]int {
+var pColMax = map[string]int64 {
     "Title" : 300,
     "EditTitle": 300,
     "Content": 100000000,
@@ -22,6 +22,18 @@ var postColMaxLen = map[string]int {
     "ContentType":100,
     "GroupName":100,
     "Color": 6,
+}
+
+var pRequiredCols = map[string]bool {
+    "ID" : false,
+    "Title" : true,
+    "EditTitle" : false,
+    "Content" : true,
+    "EditContent" : false,
+    "ContentType" : true,
+    "GroupName" : true,
+    "Time" : true,
+    "Color" : true,
 }
 
 type Post struct {
@@ -86,5 +98,5 @@ func GetPostsFromRows(r *sql.Rows) ([]Post, error) {
 }
 
 func (p *Post) Validate() error {
-    return ValidateRanges(p, postColMinLen, postColMaxLen)
+    return ValidateRanges(p, pRequiredCols, pColMin, pColMax)
 }
