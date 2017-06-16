@@ -85,6 +85,6 @@ func GetPostsFromRows(r *sql.Rows) ([]Post, error) {
     return posts, err
 }
 
-func (p Post) Validate() error {
+func (p *Post) Validate() error {
     return ValidateRanges(p, postColMinLen, postColMaxLen)
 }
