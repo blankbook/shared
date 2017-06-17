@@ -6,7 +6,7 @@ import (
     "time"
 )
 
-const PostSQLColumns = "ID, Title, EditTitle, Content, EditContent, ContentType, GroupName, Time, Color"
+const PostSQLColumns = "ID, Score, Title, EditTitle, Content, EditContent, ContentType, GroupName, Time, Color"
 
 var pColMin = map[string]int64 {
     "Title" : 5,
@@ -26,6 +26,7 @@ var pColMax = map[string]int64 {
 
 var pRequiredCols = map[string]bool {
     "ID" : false,
+    "Score" : false,
     "Title" : true,
     "EditTitle" : false,
     "Content" : true,
@@ -38,6 +39,7 @@ var pRequiredCols = map[string]bool {
 
 type Post struct {
     ID int64
+    Score int64
     Title string
     EditTitle string
     Content string
@@ -61,6 +63,7 @@ func GetPostFromRow(r *sql.Row) (Post, error) {
     var p Post
     err := r.Scan(
         &p.ID,
+        &p.Score,
         &p.Title,
         &p.EditTitle,
         &p.Content,
@@ -81,6 +84,7 @@ func GetPostsFromRows(r *sql.Rows) ([]Post, error) {
         var p Post
         err = r.Scan(
             &p.ID,
+            &p.Score,
             &p.Title,
             &p.EditTitle,
             &p.Content,

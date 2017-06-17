@@ -6,7 +6,7 @@ import (
     "time"
 )
 
-const CommentSQLColumns = "ID, ParentPost, ParentComment, Content, EditContent, Time, Color"
+const CommentSQLColumns = "ID, Score, ParentPost, ParentComment, Content, EditContent, Time, Color"
 
 var cColMin = map[string]int64 {
     "Content" : 5,
@@ -21,6 +21,8 @@ var cColMax = map[string]int64 {
 }
 
 var cRequiredCols = map[string]bool {
+    "ID" : false,
+    "Score" : false,
     "ParentPost": true,
     "ParentComment": false,
     "Content": true,
@@ -31,6 +33,7 @@ var cRequiredCols = map[string]bool {
 
 type Comment struct {
     ID int64
+    Score int64
     ParentPost int64
     ParentComment int64
     Content string
@@ -48,10 +51,11 @@ func ParseComment(s string) (Comment, error) {
     return c, err
 }
 
-func GeFromRow(r *sql.Row) (Comment, error) {
+func GetCommentFromRow(r *sql.Row) (Comment, error) {
     var c Comment
     err := r.Scan(
         &c.ID,
+        &c.Score,
         &c.ParentPost,
         &c.ParentComment,
         &c.Content,
@@ -70,6 +74,7 @@ func GetCommentsFromRows(r *sql.Rows) ([]Comment, error) {
         var c Comment
         err = r.Scan(
             &c.ID,
+            &c.Score,
             &c.ParentPost,
             &c.ParentComment,
             &c.Content,
