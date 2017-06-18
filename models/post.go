@@ -39,7 +39,7 @@ var pRequiredCols = map[string]bool {
 
 type Post struct {
     ID int64
-    Score int64
+    Score int32
     Title string
     EditTitle string
     Content string

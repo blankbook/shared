@@ -33,7 +33,7 @@ var cRequiredCols = map[string]bool {
 
 type Comment struct {
     ID int64
-    Score int64
+    Score int32
     ParentPost int64
     ParentComment int64
     Content string
