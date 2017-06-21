@@ -57,7 +57,6 @@ func (r *HTTPRouter) HandleRoute(methods []string, path string,
         }
         handler(w, filteredParams, string(b), db)
     }
-
     r.router.HandleFunc(path, handlerWrapper).Methods(methods...)
 }
 

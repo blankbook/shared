@@ -3,10 +3,9 @@ package models
 import (
     "database/sql"
     "encoding/json"
-    "time"
 )
 
-const PostSQLColumns = "ID, Score, Title, EditTitle, Content, EditContent, ContentType, GroupName, Time, Color"
+const PostSQLColumns = "Rank, ID, Score, Title, EditTitle, Content, EditContent, ContentType, GroupName, Time, Color"
 
 var pColMin = map[string]int64 {
     "Title" : 5,
@@ -38,6 +37,7 @@ var pRequiredCols = map[string]bool {
 }
 
 type Post struct {
+    Rank int64
     ID int64
     Score int32
     Title string
@@ -53,15 +53,13 @@ type Post struct {
 func ParsePost(s string) (Post, error) {
     var p Post
     err := json.Unmarshal([]byte(s), &p)
-    if p.Time == 0 {
-        p.Time = time.Now().Unix()
-    }
     return p, err
 }
 
 func GetPostFromRow(r *sql.Row) (Post, error) {
     var p Post
     err := r.Scan(
+        &p.Rank,
         &p.ID,
         &p.Score,
         &p.Title,
@@ -83,6 +81,7 @@ func GetPostsFromRows(r *sql.Rows) ([]Post, error) {
     for r.Next() {
         var p Post
         err = r.Scan(
+            &p.Rank,
             &p.ID,
             &p.Score,
             &p.Title,
