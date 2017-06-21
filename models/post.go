@@ -5,7 +5,9 @@ import (
     "encoding/json"
 )
 
-const PostSQLColumns = "Rank, ID, Score, Title, EditTitle, Content, EditContent, ContentType, GroupName, Time, Color"
+const postSQLColumns = "ID, Score, Title, EditTitle, Content, EditContent, ContentType, GroupName, Time, Color"
+const PostSQLColumnsNewRank = "Rank, " + postSQLColumns
+const PostSQLColumnsOldRank = "OldRank, " + postSQLColumns
 
 var pColMin = map[string]int64 {
     "Title" : 5,
