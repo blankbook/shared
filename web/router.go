@@ -12,7 +12,7 @@ const (
 	DELETE = "DELETE"
 )
 
-const MissingParamErr = "Missing param $1"
+const MissingParamErr = "Missing param %v"
 
 // Router is an interface used for all incoming and outgoing network requests
 // in the services
