@@ -25,7 +25,7 @@ func NewHTTPRouter(router *mux.Router, pathPrefix string) *HTTPRouter {
 func (r *HTTPRouter) HandleRoute(methods []string, path string,
                                  reqParams []string, optParams []string,
                                  handler func(w http.ResponseWriter,
-                                              queryParams map[string]string,
+                                              queryParams map[string][]string,
                                               body string, db *sql.DB),
                                  db *sql.DB) {
     handlerWrapper := func(w http.ResponseWriter, r *http.Request) {
@@ -38,11 +38,11 @@ func (r *HTTPRouter) HandleRoute(methods []string, path string,
                 return
             }
         }
-        filteredParams := make(map[string]string)
+        filteredParams := make(map[string][]string)
         queryParams := r.URL.Query()
         for _, param := range reqParams {
             if val, ok := queryParams[param]; ok && len(val) > 0 {
-                filteredParams[param] = val[0]
+                filteredParams[param] = val
             } else {
                 http.Error(w, fmt.Sprintf(MissingParamErr, param), http.StatusBadRequest)
                 return
@@ -50,9 +50,7 @@ func (r *HTTPRouter) HandleRoute(methods []string, path string,
         }
         for _, param := range optParams {
             if val, ok := queryParams[param]; ok && len(val) > 0 {
-                filteredParams[param] = val[0]
-            } else {
-                filteredParams[param] = ""
+                filteredParams[param] = val
             }
         }
         handler(w, filteredParams, string(b), db)
