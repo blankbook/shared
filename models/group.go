@@ -6,11 +6,12 @@ import (
     "errors"
 )
 
-const GroupSQLColumns = "Name, Protected"
+const GroupSQLColumns = "Name, Protected, Salt"
 
 type Group struct {
     Name string
     Protected bool
+    Salt string
 }
 
 func ParseGroup(s string) (Group, error) {
@@ -23,7 +24,8 @@ func GetGroupFromRow(r *sql.Row) (Group, error) {
     var g Group
     err := r.Scan(
         &g.Name,
-        &g.Protected)
+        &g.Protected,
+        &g.Salt)
     return g, err
 }
 
@@ -36,7 +38,8 @@ func GetGroupsFromRows(r *sql.Rows) ([]Group, error) {
         var g Group
         err := r.Scan(
             &g.Name,
-            &g.Protected)
+            &g.Protected,
+            &g.Salt)
         if err != nil {
             break
         }
